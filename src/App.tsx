@@ -1,48 +1,89 @@
-import React, { useEffect } from "react";
-import { useQuery } from "react-query";
+import { useState } from "react";
 import Card from "./components/Card";
+import Navbar from "./components/Navbar/Navbar";
 import Spinner from "./components/Spinner";
-import { baseUrl, publicKey } from "./config";
-import logo from "./logo.svg";
+import { useCharactersData } from "./hooks/useCharactersData";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 const App = () => {
-  const { isLoading, error, data } = useQuery("marvelCharacters", () =>
-    fetch(`${baseUrl}/characters?apikey=${publicKey}`).then((res) => res.json())
-  );
+  const [page, setPage] = useState<number>(0);
+  const [favorites, setFavorites] = useLocalStorage<any>("favorites", []);
+  const [showFavorites, setShowFavorites] = useState<boolean>(false);
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        <Spinner />
-      </div>
-    );
+  const { isLoading, error, data } = useCharactersData({ page });
 
   if (error) {
     if (error instanceof Error) {
-      return <h1>An error has occurred: {error.message}</h1>;
+      return <h1>An error has occurred: {JSON.stringify(error.message)}</h1>;
     }
   }
 
-  const { data: result } = data;
+  const { data: result } = data || {};
+
+  const handleFavorites = ({ id }: any) => {
+    const character = result.results.find(
+      (character: any) => character.id === id
+    );
+    isInFavorites(id)
+      ? setFavorites(favorites.filter((e: any) => e.id !== id))
+      : favorites?.length === 5
+      ? alert("You can't have more than 5 characters in favorites")
+      : setFavorites([...favorites, character]);
+  };
+
+  const isInFavorites = (id: any) => {
+    if (favorites.some((e: any) => e.id === id)) {
+      return true;
+    }
+    return false;
+  };
 
   return (
-    <div className="container w-full h-auto mx-auto">
-      <div className="flex justify-center">
-        <img src={logo} className="App-logo" alt="logo" />
-      </div>
-      <div className="w-full h-auto">
-        <div className="flex-wrap justify-center flex gap-10">
-          {result.results.map((result: any) => (
-            <Card
-              key={result.id}
-              name={result.name}
-              image={result.thumbnail.path}
-              extension={result.thumbnail.extension}
-              comics={result.comics}
-              description={result.description}
-            />
-          ))}
-        </div>
+    <div className="max-w-screen h-auto">
+      <Navbar
+        page={page}
+        setPage={setPage}
+        setShowFavorites={setShowFavorites}
+        showFavorites={showFavorites}
+      />
+      <div className="w-full h-auto flex p-20 justify-center">
+        {isLoading ? (
+          <div className="w-full h-full justify-center flex items-center">
+            <Spinner />
+          </div>
+        ) : (
+          <div className="flex-wrap justify-center flex gap-10">
+            {showFavorites
+              ? favorites.map((result: any, _i: number) => (
+                  <Card
+                    key={result.id}
+                    index={_i}
+                    name={result.name}
+                    image={result.thumbnail.path}
+                    extension={result.thumbnail.extension}
+                    comics={result.comics}
+                    description={result.description}
+                    handleFavorites={handleFavorites}
+                    id={result.id}
+                    isInFavorites={isInFavorites}
+                  />
+                ))
+              : result.results.map((result: any, _i: number) => (
+                  <Card
+                    key={result.id}
+                    index={_i}
+                    name={result.name}
+                    image={result.thumbnail.path}
+                    extension={result.thumbnail.extension}
+                    comics={result.comics}
+                    description={result.description}
+                    handleFavorites={handleFavorites}
+                    id={result.id}
+                    isInFavorites={isInFavorites}
+                  />
+                ))}
+          </div>
+        )}
       </div>
     </div>
   );
