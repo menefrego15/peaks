@@ -2,7 +2,6 @@ import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import App from "./App";
-import { QueryClientProvider, QueryClient } from "react-query";
 import { useCharactersData } from "./hooks/useCharactersData";
 import { createWrapper, renderWithClient } from "./utils";
 import { server } from "./setupTests";

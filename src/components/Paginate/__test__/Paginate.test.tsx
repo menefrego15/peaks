@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import Navbar from "../Navbar";
+import Paginate from "../../Paginate/Paginate";
 import { createWrapper } from "../../../utils";
 import App from "../../../App";
 
 test("Button prev should be disabled if we are at first page", async () => {
-  render(<Navbar page={0} setPage={() => {}} />);
+  render(
+    <Paginate
+      page={0}
+      setPage={() => {}}
+      showFavorites={true}
+      setShowFavorites={() => {}}
+    />
+  );
   const buttonPrev = await screen.findByRole("button", {
     name: "prev",
   });
@@ -13,7 +20,14 @@ test("Button prev should be disabled if we are at first page", async () => {
 });
 
 test("Button next should be in the document", async () => {
-  render(<Navbar page={0} setPage={() => {}} />);
+  render(
+    <Paginate
+      page={0}
+      setPage={() => {}}
+      showFavorites={true}
+      setShowFavorites={() => {}}
+    />
+  );
   const buttonNext = await screen.findByRole("button", {
     name: "next",
   });
@@ -21,7 +35,14 @@ test("Button next should be in the document", async () => {
 });
 
 test("Button Show Favorites should be in the document", async () => {
-  render(<Navbar page={0} setPage={() => {}} />);
+  render(
+    <Paginate
+      page={0}
+      setPage={() => {}}
+      showFavorites={false}
+      setShowFavorites={() => {}}
+    />
+  );
   const buttonFav = await screen.findByRole("button", {
     name: "show favorites",
   });

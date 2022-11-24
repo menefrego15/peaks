@@ -1,11 +1,12 @@
 import { useQuery } from "react-query";
 import { baseUrl, publicKey } from "../config";
 
-const fetchCharacters = (page = 0) => {
+const fetchCharacters = async (page = 0) => {
   const paginate = 100 + page * 10;
-  return fetch(
+  const res = await fetch(
     `${baseUrl}/v1/public/characters?offset=${paginate}&apikey=${publicKey}`
-  ).then((res) => res.json());
+  );
+  return await res.json();
 };
 
 export function useCharactersData({ page }: { page: number }) {
